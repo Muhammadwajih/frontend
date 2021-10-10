@@ -1,7 +1,7 @@
 FROM node:10-alpine
 
 LABEL name="Node Express Application" \   
-     maintainer="Ali Kahoot <kahoot.ali@outlook.com>" \
+     maintainer="Muhammad Wajih ul Murtaza Sheikh" \
      summary="A Node Express application"
 
 # Create app directory

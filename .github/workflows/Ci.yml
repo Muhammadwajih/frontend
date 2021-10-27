@@ -1,0 +1,85 @@
+name: CI
+
+on:
+  push:
+
+env:
+  IMAGE_NAME: muhammadwajih/frontend
+
+jobs:
+  Build-and-Push-Image:
+    runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, 'skip ci')"
+    name: Build and Push Image to Image registry
+    env:
+      REGISTRY: docker.io
+    defaults:
+      run:
+        shell: bash
+    steps:
+    - name: Set up Go 1.13
+      uses: actions/setup-go@v1
+      with:
+        go-version: 1.13
+      id: go
+
+    - name: Check out code into the Go module directory
+      uses: actions/checkout@v2
+
+    - name: Build Code
+      run: |
+        go get github.com/thedevsaddam/renderer/...
+        go build -v .
+    
+    - name: Initialize Pipeline
+      uses: mshick/add-pr-comment@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        message: "@${{ github.actor }} GitHub Actions has started building this code. Check status at 'https://github.com/${{ github.repository }}/commit/${{ github.event.pull_request.head.sha }}/checks'"
+        allow-repeats: false
+    - name: Generate Vars
+      id: generate_vars
+      run: |
+        # Just Tag
+        IMAGE_TAG=pr-${{ github.event.pull_request.number }}-$(echo ${{ github.event.pull_request.head.sha }} | cut -c1-8)
+        # Just Image name
+        IMAGE_NAME=${{ github.repository }}
+        #Image ID= Name + Tag
+        IMAGE_ID=$IMAGE_NAME:$IMAGE_TAG
+        IMAGE_REPO=$REGISTRY/$IMAGE_ID
+        echo "Image: $IMAGE_REPO"
+        echo "::set-output name=image::$IMAGE_REPO"
+        echo "::set-output name=image_name::$IMAGE_NAME"
+        echo REPO=$IMAGE_NAME >> $GITHUB_ENV
+        echo IMAGE=$(echo "$REGISTRY/$IMAGE_ID") >> $GITHUB_ENV
+
+
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v1
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+    - name: Login to DockerHub
+      uses: docker/login-action@v1 
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+    
+    - name: Echo Output
+      run: |
+        echo "Image from Output: ${{ steps.generate_vars.outputs.image }}"
+        echo "Repo from Output: ${{ steps.generate_vars.outputs.image_name }}"
+        echo "Image from Env:  ${{ env.IMAGE }}"
+        echo "Repo from Env:  ${{ env.REPO }}"
+
+    - name: Build and Push Docker Image
+      uses: docker/build-push-action@v2
+      with:
+        context: .
+        file: ./Dockerfile
+        pull: true
+        push: true
+        build-args: BUILD_PARAMETERS=${{ env.BUILD_PARAMETERS }}
+        cache-to: type=inline
+        tags: ${{ env.IMAGE }}
+    

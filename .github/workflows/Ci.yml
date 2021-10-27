@@ -28,7 +28,7 @@ jobs:
       id: generate_vars
       run: |
         # Just Tag
-        IMAGE_TAG=pr-${{ github.event.pull_request.number }}-$(echo ${{ github.event.pull_request.head.sha }} | cut -c1-8)
+        IMAGE_TAG=1.0
         # Just Image name
         IMAGE_NAME=${{ github.repository }}
         #Image ID= Name + Tag

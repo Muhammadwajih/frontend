@@ -16,21 +16,7 @@ jobs:
     defaults:
       run:
         shell: bash
-    steps:
-    - name: Set up Go 1.13
-      uses: actions/setup-go@v1
-      with:
-        go-version: 1.13
-      id: go
-
-    - name: Check out code into the Go module directory
-      uses: actions/checkout@v2
-
-    - name: Build Code
-      run: |
-        go get github.com/thedevsaddam/renderer/...
-        go build -v .
-    
+    steps:    
     - name: Initialize Pipeline
       uses: mshick/add-pr-comment@v1
       env:
@@ -76,7 +62,7 @@ jobs:
       uses: docker/build-push-action@v2
       with:
         context: .
-        file: ./Dockerfile
+        file: Dockerfile
         pull: true
         push: true
         build-args: BUILD_PARAMETERS=${{ env.BUILD_PARAMETERS }}

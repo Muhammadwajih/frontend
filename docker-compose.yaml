@@ -1,17 +1,13 @@
 version: '3.7'
 services:
   backend:
-    build: 
-      context: ../backend
-      dockerfile: Dockerfile
+    image: muhammadwajih/backend:1.0
     init: true
     networks:
     - application
     - mysql_internal
   frontend:
-    build: 
-      context: .
-      dockerfile: Dockerfile
+    image: muhammadwajih/frontend:1.0
     init: true
     networks:
     - application

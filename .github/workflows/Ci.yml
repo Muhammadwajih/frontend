@@ -82,32 +82,4 @@ jobs:
         build-args: BUILD_PARAMETERS=${{ env.BUILD_PARAMETERS }}
         cache-to: type=inline
         tags: ${{ env.IMAGE }}
-
-    - name: Comment on PR
-      uses: mshick/add-pr-comment@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        message: '@${{ github.actor }} Image is available for testing. `docker pull ${{ env.IMAGE }}`'
-        allow-repeats: false
-
-    - name: Notify Failure
-      if: failure()
-      uses: mshick/add-pr-comment@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        message: '@${{ github.actor }} The pipeline failed! You better fix it before anyone else finds out! [Build](https://github.com/${{ github.repository }}/commit/${{ github.event.pull_request.head.sha }}/checks) has Failed!'
-        allow-repeats: false
-
-    - name: Notify Slack
-      uses: 8398a7/action-slack@v3
-      if: always()
-      with:
-        status: ${{ job.status }}
-        fields: repo,author,action,eventName,ref,workflow
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
-
     

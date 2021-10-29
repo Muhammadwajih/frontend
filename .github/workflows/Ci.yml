@@ -61,7 +61,7 @@ jobs:
     - name: Build and Push Docker Image
       uses: docker/build-push-action@v2
       with:
-        context: '.'
+        context: ./Dockerfile
         file: ./Dockerfile
         pull: true
         push: true
@@ -69,3 +69,4 @@ jobs:
         cache-to: type=inline
         tags: ${{ env.IMAGE }}
     
+
